@@ -25,12 +25,14 @@ namespace DevIO.App
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            // passando o context da data e depois vamos criar uma micration para cada context
-            // Quando temos mais de um context precisamos setar ele na hora de criar a migration
-            // Add-Migration Initial -Context MeuDbContext
-            // Add-Migration Initial -Context ApplicationDbContext
-            // Script-Migration -Context MeuDbContext -> script para criar o banco gerado pelo entity
+            
+            /*
+                 passando o context da data e depois vamos criar uma micration para cada context
+                 Quando temos mais de um context precisamos setar ele na hora de criar a migration
+                 Add - Migration Initial - Context MeuDbContext
+                 Add - Migration Initial - Context ApplicationDbContext
+                 Script - Migration - Context MeuDbContext->script para criar o banco gerado pelo entity
+             */
             services.AddDbContext<MeuDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 

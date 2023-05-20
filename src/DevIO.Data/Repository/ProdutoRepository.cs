@@ -19,7 +19,7 @@ namespace DevIO.Data.Repository
             .Include(x => x.Fornecedor)
             .FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<IEnumerable<Produto>> ObterProdutosFornecedores(Guid id)
+        public async Task<IEnumerable<Produto>> ObterProdutosFornecedores()
         {
             return await Db.Produtos.AsNoTracking().Include(x => x.Fornecedor)
             .OrderBy(p => p.Nome).ToListAsync();

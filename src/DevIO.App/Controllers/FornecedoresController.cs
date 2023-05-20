@@ -13,7 +13,7 @@ using DevIO.Business.Models;
 
 namespace DevIO.App.Controllers
 {
-    public class FornecedoresController : Controller
+    public class FornecedoresController : BaseController
     {
         private readonly IFornecedorRepository _forncedorRepository;
         private readonly IMapper _mapper;
@@ -75,52 +75,25 @@ namespace DevIO.App.Controllers
             return View(fornecedorViewModel);
         }
         
-        // TODO - parei aqui 12:58
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Nome,Documento,TipoFornecedor,Ativo")] FornecedorViewModel fornecedorViewModel)
+        public async Task<IActionResult> Edit(Guid id, FornecedorViewModel fornecedorViewModel)
         {
-            if (id != fornecedorViewModel.Id)
-            {
-                return NotFound();
-            }
+            if (id != fornecedorViewModel.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(fornecedorViewModel);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FornecedorViewModelExists(fornecedorViewModel.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(fornecedorViewModel);
+            if (!ModelState.IsValid) return View(fornecedorViewModel);
+
+            var fornecedor = _mapper.Map<Fornecedor>(fornecedorViewModel);
+            await _forncedorRepository.Atualizar(fornecedor);
+
+            return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var fornecedorViewModel = await ObterFornecedorEndereco(id);
 
-            var fornecedorViewModel = await _context.FornecedorViewModel
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (fornecedorViewModel == null)
-            {
-                return NotFound();
-            }
+            if (fornecedorViewModel == null) return NotFound();
 
             return View(fornecedorViewModel);
         }
@@ -129,9 +102,12 @@ namespace DevIO.App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var fornecedorViewModel = await _context.FornecedorViewModel.FindAsync(id);
-            _context.FornecedorViewModel.Remove(fornecedorViewModel);
-            await _context.SaveChangesAsync();
+            var fornecedorViewModel = await ObterFornecedorEndereco(id);
+
+            if (fornecedorViewModel == null) return NotFound();
+
+            await _forncedorRepository.Remover(id);
+
             return RedirectToAction(nameof(Index));
         }
 
